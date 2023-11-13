@@ -4,6 +4,7 @@ Welcome to the computational-intelligence folder. This collection is a part of m
 # Content Overview
 
 - A* Algorithm
+- ES Algorithm for the nim game
 
 # Note
 This code is a personal implementation, crafted as part of my studies. While it's influenced by the teachings of the course instructors, any mistakes or unique interpretations are my own.
