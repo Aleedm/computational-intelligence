@@ -34,3 +34,11 @@ The performance of the genetic algorithm using these two selection methods can v
 ### Wins over genome diversity through epochs
 
 ![Genome diversity, tournament selection](./animation_single_tournament.gif)![Genome diversity, roulette wheel selection](./animation_single_roulette.gif)
+
+### Peer review
+
+Done:
+- [To Lorenzo Bonannella](https://github.com/lorenzobn/computational_intelligence/issues/1#issue-1994520298) [(lorenzobn)](https://github.com/lorenzobn)
+
+Received:
+- [From Lorenzo Bonannella](https://github.com/Aleedm/computational-intelligence/issues/1#issue-1994496255) [(lorenzobn)](https://github.com/lorenzobn)
