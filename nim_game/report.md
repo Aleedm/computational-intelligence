@@ -39,6 +39,8 @@ The performance of the genetic algorithm using these two selection methods can v
 
 Done:
 - [To Lorenzo Bonannella](https://github.com/lorenzobn/computational_intelligence/issues/1#issue-1994520298) [(lorenzobn)](https://github.com/lorenzobn)
+- [To Giacomo Cauda](https://github.com/jackcauda00/computational-intelligence/issues/1#issue-1996474845) [(jackcauda00)](https://github.com/jackcauda00)
 
 Received:
 - [From Lorenzo Bonannella](https://github.com/Aleedm/computational-intelligence/issues/1#issue-1994496255) [(lorenzobn)](https://github.com/lorenzobn)
+- [From SaSa0011](https://github.com/Aleedm/computational-intelligence/issues/2#issue-1995292998) [(SaSa0011)](https://github.com/SaSa0011)
