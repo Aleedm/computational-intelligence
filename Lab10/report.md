@@ -74,3 +74,14 @@ Here are the visual results from the AI competitions between Monte Carlo and Q-L
 # Conclusion
 
 This implementation demonstrates the effectiveness of Q-Learning and Monte Carlo methods in developing Reinforcement Learning for simple strategy games like Tic-Tac-Toe. The results and visualizations provide insights into AI strategies and decision-making processes.
+
+---
+
+### Peer review
+
+Done:
+- [To Lorenzo Bonannella](https://github.com/lorenzobn/computational_intelligence/issues/6#issue-2064241100) [(lorenzobn)](https://github.com/lorenzobn)
+- [To Riccardo Cardona](https://github.com/Riden15/Computational-Intelligence/issues/6#issue-2064258067) [(Riden15)](https://github.com/Riden15)
+
+Received:
+- [From Lorenzo Bonannella](https://github.com/Aleedm/computational-intelligence/issues/7#issue-2062761403) [(lorenzobn)](https://github.com/lorenzobn)
