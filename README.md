@@ -7,6 +7,7 @@ Welcome to the computational-intelligence folder. This collection is a part of m
 - ES Algorithm for the nim game
 - ES Algorithm for the 1000-loci problem
 - Q-Learning and Monte Carlo for Tic-Tac-Toe
+- AlphaZero for Quixo
 
 # Note
 This code is a personal implementation, crafted as part of my studies. While it's influenced by the teachings of the course instructors, any mistakes or unique interpretations are my own.
