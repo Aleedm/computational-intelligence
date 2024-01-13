@@ -8,53 +8,6 @@ device = "mps" if torch.backends.mps.is_available() else "cpu"
 # device = "cuda" if torch.cuda.is_available() else "cpu"
 # device = "cpu"
 
-# # Define the neural network class
-# class QuixoNet(nn.Module):
-#     def __init__(self):
-#         super(QuixoNet, self).__init__()
-#         # Define the convolutional layers with batch normalization
-#         self.conv1 = nn.Conv2d(2, 64, kernel_size=3, padding=1)
-#         self.bn1 = nn.BatchNorm2d(64)
-#         self.conv2 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-#         self.bn2 = nn.BatchNorm2d(128)
-#         self.conv3 = nn.Conv2d(128, 256, kernel_size=3, padding=1)
-#         self.bn3 = nn.BatchNorm2d(256)
-#         self.conv4 = nn.Conv2d(256, 512, kernel_size=3, padding=1)
-#         self.bn4 = nn.BatchNorm2d(512)
-
-#         # Define fully connected layers for processing after convolutional layers
-#         self.fc1 = nn.Linear(512 * 5 * 5, 1024)
-#         self.bn5 = nn.BatchNorm1d(1024)
-#         self.fc2 = nn.Linear(1024, 512)
-#         self.bn6 = nn.BatchNorm1d(512)
-#         self.dropout = nn.Dropout(0.3)
-
-#         # Define output layers for value and policy predictions
-#         self.fc_val = nn.Linear(512, 1)  # Value head
-#         self.fc_pol = nn.Linear(512, 44)  # Policy head
-
-#     def forward(self, x):
-#         # Apply convolutional and batch normalization layers
-#         x = F.relu(self.bn1(self.conv1(x)))
-#         x = F.relu(self.bn2(self.conv2(x)))
-#         x = F.relu(self.bn3(self.conv3(x)))
-#         x = F.relu(self.bn4(self.conv4(x)))
-
-#         # Flatten the output for the fully connected layers
-#         x = x.view(-1, 512 * 5 * 5)
-
-#         # Apply fully connected layers with dropout
-#         x = F.relu(self.bn5(self.fc1(x)))
-#         x = self.dropout(x)
-#         x = F.relu(self.bn6(self.fc2(x)))
-#         x = self.dropout(x)
-
-#         # Generate and return value and policy predictions
-#         val = torch.tanh(self.fc_val(x))  # Value prediction
-#         pol = F.log_softmax(self.fc_pol(x), dim=1)  # Policy prediction
-
-#         return pol, val
-
 
 # Definition of the residual block
 class ResidualBlock(nn.Module):

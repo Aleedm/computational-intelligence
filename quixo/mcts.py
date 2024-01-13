@@ -2,7 +2,6 @@ import torch
 from alphazeroquixo import train
 from dataloader import QuixoDataset, get_data_loader
 from utilities import (
-    compute_number_moves,
     convert_board_to_binary,
     generate_pol_labels,
     generate_val_labels,
@@ -10,14 +9,13 @@ from utilities import (
     index_to_move,
     possible_moves_for_piece,
     move_to_index,
-    is_legal_move_sa,
 )
-from game import Game, Player, Move
+from game import Player, Move
+from game_wrapper import GameWrapper as Game
 import math
 import numpy as np
 from tqdm.auto import tqdm
 from copy import deepcopy
-import random
 
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 # device = "cuda" if torch.cuda.is_available() else "cpu"
