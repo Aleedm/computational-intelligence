@@ -102,6 +102,7 @@ def compute_number_moves(size):
     moves = (corners * 2) + (sides * 3)
     return moves
 
+
 def is_legal_move_sa(board, player, x, y, direction):
     # Determine if a move is legal
     # Get possible moves for the piece at the specified position
@@ -112,6 +113,7 @@ def is_legal_move_sa(board, player, x, y, direction):
         if ((x, y), direction) in possible_moves:
             return True
     return False
+
 
 # Generate possible moves for a given piece on the board
 def possible_moves_for_piece(x, y, board_size=5):
@@ -147,3 +149,27 @@ def possible_moves_for_piece(x, y, board_size=5):
                 moves.append(((x, y), Move.TOP))
 
     return moves
+
+
+def get_possible_moves(board, player, random = False):
+    # Get all possible moves in the game
+    all_moves = get_all_move()
+
+    # Filter out the legal moves based on the current state
+    legal_moves = [
+        move
+        for move in all_moves
+        if is_legal_move_sa(board, player, move[0][0], move[0][1], move[1])
+    ]
+    
+    if random:
+        np.random.shuffle(legal_moves)
+        
+    return legal_moves
+
+
+def calculate_depth(value, max_value=44, max_depth=5):
+    ratio = (max_value - value) / max_value
+    depth = int(ratio * max_depth)
+    depth = max(1, depth)
+    return depth

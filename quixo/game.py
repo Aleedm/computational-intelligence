@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 from enum import Enum
 import numpy as np
+from tqdm import tqdm
 
 # Rules on PDF and https://cdn.1j1ju.com/medias/a8/5e/26-quixo-rulebook.pdf
 
@@ -106,6 +107,28 @@ class Game(object):
                 ok = self.__move(from_pos, slide, self.current_player_idx)
             winner = self.check_winner()
         return winner
+
+    def play_with_print(self, player1: Player, player2: Player, debug=False) -> (int, int):
+        """Play the game. Returns the winning player"""
+        players = [player1, player2]
+        winner = -1
+        n_moves = 0
+
+        with tqdm(total=None, unit=" moves", desc="Playing Game", disable = not debug) as progress_bar:
+            while winner < 0:
+                self.current_player_idx += 1
+                self.current_player_idx %= len(players)
+                ok = False
+                while not ok:
+                    from_pos, slide = players[self.current_player_idx].make_move(self)
+                    ok = self.__move(from_pos, slide, self.current_player_idx)
+                n_moves += 1
+                progress_bar.update(1)  # Aggiorna la barra di progresso ad ogni mossa
+                progress_bar.set_postfix(moves=n_moves)  # Mostra il numero di mosse effettuate
+                winner = self.check_winner()
+        
+        progress_bar.set_description(f"Game Over - Moves: {n_moves}")
+        return winner, n_moves
 
     def __move(self, from_pos: tuple[int, int], slide: Move, player_id: int) -> bool:
         """Perform a move"""
