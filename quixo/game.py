@@ -8,9 +8,9 @@ from tqdm import tqdm
 
 
 class Move(Enum):
-    """
+    '''
     Selects where you want to place the taken piece. The rest of the pieces are shifted
-    """
+    '''
 
     TOP = 0
     BOTTOM = 1
@@ -20,18 +20,18 @@ class Move(Enum):
 
 class Player(ABC):
     def __init__(self) -> None:
-        """You can change this for your player if you need to handle state/have memory"""
+        '''You can change this for your player if you need to handle state/have memory'''
         pass
 
     @abstractmethod
-    def make_move(self, game: "Game") -> tuple[tuple[int, int], Move]:
-        """
+    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
+        '''
         The game accepts coordinates of the type (X, Y). X goes from left to right, while Y goes from top to bottom, as in 2D graphics.
         Thus, the coordinates that this method returns shall be in the (X, Y) format.
 
         game: the Quixo game. You can use it to override the current game with yours, but everything is evaluated by the main game
         return values: this method shall return a tuple of X,Y positions and a move among TOP, BOTTOM, LEFT and RIGHT
-        """
+        '''
         pass
 
 
@@ -41,23 +41,23 @@ class Game(object):
         self.current_player_idx = 1
 
     def get_board(self) -> np.ndarray:
-        """
+        '''
         Returns the board
-        """
+        '''
         return deepcopy(self._board)
 
     def get_current_player(self) -> int:
-        """
+        '''
         Returns the current player
-        """
+        '''
         return deepcopy(self.current_player_idx)
 
     def print(self):
-        """Prints the board. -1 are neutral pieces, 0 are pieces of player 0, 1 pieces of player 1"""
+        '''Prints the board. -1 are neutral pieces, 0 are pieces of player 0, 1 pieces of player 1'''
         print(self._board)
 
     def check_winner(self) -> int:
-        """Check the winner. Returns the player ID of the winner if any, otherwise returns -1"""
+        '''Check the winner. Returns the player ID of the winner if any, otherwise returns -1'''
         # for each row
         player = self.get_current_player()
         winner = -1
@@ -78,8 +78,7 @@ class Game(object):
             return winner
         # if a player has completed the principal diagonal
         if self._board[0, 0] != -1 and all(
-            [self._board[x, x] for x in range(self._board.shape[0])]
-            == self._board[0, 0]
+            [self._board[x, x] for x in range(self._board.shape[0])] == self._board[0, 0]
         ):
             # return the relative id
             winner = self._board[0, 0]
@@ -87,15 +86,14 @@ class Game(object):
             return winner
         # if a player has completed the secondary diagonal
         if self._board[0, -1] != -1 and all(
-            [self._board[x, -(x + 1)] for x in range(self._board.shape[0])]
-            == self._board[0, -1]
+            [self._board[x, -(x + 1)] for x in range(self._board.shape[0])] == self._board[0, -1]
         ):
             # return the relative id
             winner = self._board[0, -1]
         return winner
 
     def play(self, player1: Player, player2: Player) -> int:
-        """Play the game. Returns the winning player"""
+        '''Play the game. Returns the winning player'''
         players = [player1, player2]
         winner = -1
         while winner < 0:
@@ -107,12 +105,13 @@ class Game(object):
                 ok = self.__move(from_pos, slide, self.current_player_idx)
             winner = self.check_winner()
         return winner
-
-    def play_with_print(self, player1: Player, player2: Player, debug=False) -> (int, int):
+    
+    def play_with_print(self, player1: Player, player2: Player, debug=False):
         """Play the game. Returns the winning player"""
         players = [player1, player2]
         winner = -1
         n_moves = 0
+        moves = []
 
         with tqdm(total=None, unit=" moves", desc="Playing Game", disable = not debug) as progress_bar:
             while winner < 0:
@@ -122,16 +121,18 @@ class Game(object):
                 while not ok:
                     from_pos, slide = players[self.current_player_idx].make_move(self)
                     ok = self.__move(from_pos, slide, self.current_player_idx)
+                moves.append((from_pos, slide))
                 n_moves += 1
                 progress_bar.update(1)  # Aggiorna la barra di progresso ad ogni mossa
                 progress_bar.set_postfix(moves=n_moves)  # Mostra il numero di mosse effettuate
                 winner = self.check_winner()
         
         progress_bar.set_description(f"Game Over - Moves: {n_moves}")
-        return winner, n_moves
+        return winner, n_moves, moves
+
 
     def __move(self, from_pos: tuple[int, int], slide: Move, player_id: int) -> bool:
-        """Perform a move"""
+        '''Perform a move'''
         if player_id not in (0, 1):
             return False
         prev_value = deepcopy(self._board[(from_pos[1], from_pos[0])])
@@ -172,17 +173,33 @@ class Game(object):
         return acceptable_slides
 
     def __slide(self, from_pos: tuple[int, int], slide: Move) -> bool:
-        """Slide the other pieces"""
+        '''Slide the other pieces'''
         if slide not in self.__acceptable_slides(from_pos):
             return False  # consider raise ValueError('Invalid argument value')
         axis_0, axis_1 = from_pos
-        # np.roll performs a rotation of the element of a 1D ndarray
+
         if slide == Move.RIGHT:
-            self._board[axis_0] = np.roll(self._board[axis_0], -1)
+            # pick the cube without face or with player's face and put it on the far right of the same row and push the other cubes on the left
+            self._board[axis_0] = np.concatenate(
+                (self._board[axis_0, :axis_1], self._board[axis_0, axis_1 + 1 :], self._board[axis_0, axis_1]),
+                axis=None,
+            )
         elif slide == Move.LEFT:
-            self._board[axis_0] = np.roll(self._board[axis_0], 1)
+            # pick the cube without face or with player's face and put it on the far left of the same row and push the other cubes on the right
+            self._board[axis_0] = np.concatenate(
+                (self._board[axis_0, axis_1], self._board[axis_0, :axis_1], self._board[axis_0, axis_1 + 1 :]),
+                axis=None,
+            )
         elif slide == Move.BOTTOM:
-            self._board[:, axis_1] = np.roll(self._board[:, axis_1], -1)
+            # pick the cube without face or with player's face and put it at the bottom on the same column and push the other cubes upwards
+            self._board[:, axis_1] = np.concatenate(
+                (self._board[:axis_0, axis_1], self._board[axis_0 + 1 :, axis_1], self._board[axis_0, axis_1]),
+                axis=None,
+            )
         elif slide == Move.TOP:
-            self._board[:, axis_1] = np.roll(self._board[:, axis_1], 1)
+            # pick the cube without face or with player's face and put it at the top on the same column and push the other cubes downwards
+            self._board[:, axis_1] = np.concatenate(
+                (self._board[axis_0, axis_1], self._board[:axis_0, axis_1], self._board[axis_0 + 1 :, axis_1]),
+                axis=None,
+            )
         return True
