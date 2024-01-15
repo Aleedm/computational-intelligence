@@ -223,55 +223,6 @@ class MonteCarloTreeSearch:
             )  # Create a DataLoader
             train(self.neural_network, train_loader, epochs=epochs)  # Train the model
 
-    # def simulate_game(self, node):
-    #     # Simulate a game starting from a given node
-    #     board = node.state.board
-    #     player = node.state.player
-    #     game = Game(board, player)  # Initialize the game state
-    #     game_states = []  # Store the game states
-    #     game_moves = []  # Store the moves made in the game
-    #     game_state_with_player = []  # Store game states along with the current player
-
-    #     # Continue the simulation until there is a winner
-    #     while game.check_winner() < 0:
-    #         # Convert the board to a binary representation for the neural network
-    #         binary_board = convert_board_to_binary(
-    #             game.get_board(), game.get_current_player()
-    #         )
-    #         game_states.append(binary_board)
-    #         game_state_with_player.append((binary_board, game.get_current_player()))
-    #         # Convert the board to a tensor for the neural network
-    #         board_tensor = torch.tensor(binary_board).float().unsqueeze(0).to(device)
-
-    #         # Predict the policy and value for the current state without updating gradients
-    #         with torch.no_grad():
-    #             self.neural_network.eval()
-    #             policy, val = self.neural_network(board_tensor)
-
-    #         # Convert the policy to a probability distribution
-    #         policy = policy.squeeze(0).exp().cpu().numpy()
-
-    #         # If the node is a leaf, backpropagate the value
-    #         if node.is_leaf():
-    #             self.backpropagate_value(node, val)
-
-    #         # Update the children of the current node with the predicted policy
-    #         self.update_children(node, policy)
-
-    #         # Select the next node to explore
-    #         node = node.select_child()
-
-    #         # Determine the best move and apply it to the game
-    #         best_move = node.move
-    #         game_moves.append(best_move)
-    #         game.move(best_move[0], best_move[1], game.get_current_player())
-    #         # Update the current player
-    #         game.current_player_idx += 1
-    #         game.current_player_idx %= 2
-
-    #     # Return the result of the game and the states, moves, and state-player pairs
-    #     return game.check_winner(), game_states, game_moves, game_state_with_player
-
     def simulate_game(self, node, num_simulations=500, max_moves=100):
         # Simulate a game starting from a given node
         board = node.state.board
