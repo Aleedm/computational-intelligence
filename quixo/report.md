@@ -440,7 +440,7 @@ Crossover merges genes from two parent genomes to produce a new genome. This inv
 - Combining weights and biases from the parents to create new layers.
     - **Parameter Mixing:** Weights and biases are blended from the chosen layers of both parents.
 
-### Results
+### Results
 Unfortunately, with the hardware at my disposal, I was unable to train NEAT as I intended. I attempted to run the code for a few generations, limiting the number of individuals per generation, the games played per generation, and the complexity of the neural network. Despite all these constraints, I achieved interesting results, with a winning rate of 70% against a random opponent. These results are exciting, and it would be interesting to see how the agent performs if trained without all these limitations.
 
 
