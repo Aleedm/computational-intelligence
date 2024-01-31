@@ -173,3 +173,24 @@ def calculate_depth(value, max_value=44, max_depth=5):
     depth = int(ratio * max_depth)
     depth = max(1, depth)
     return depth
+
+def print_custom_board(board):
+    n = len(board)
+    symbols = {0: "❌", 1: "⭕️", -1: "⬜️"}
+    winning_symbols = {0: "❎", 1: "🟢", -1: "⬜️"}
+
+    def check_line(line):
+        return all(val == line[0] and val != -1 for val in line)
+
+    winning_rows = [check_line(board[row]) for row in range(n)]
+    winning_cols = [check_line([board[row][col] for row in range(n)]) for col in range(n)]
+    winning_diag1 = check_line([board[i][i] for i in range(n)])
+    winning_diag2 = check_line([board[i][n - 1 - i] for i in range(n)])
+
+    for row in range(n):
+        for col in range(n):
+            if winning_rows[row] or winning_cols[col] or (winning_diag1 and row == col) or (winning_diag2 and row == n - 1 - col):
+                print(winning_symbols[board[row][col]], end=" ")
+            else:
+                print(symbols[board[row][col]], end=" ")
+        print()

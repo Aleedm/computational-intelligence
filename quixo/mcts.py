@@ -1,12 +1,10 @@
 import torch
-from alphazeroquixo import train
-from dataloader import QuixoDataset, get_data_loader
+from alphazeroquixo import train, QuixoDataset, get_data_loader
 from utilities import (
     convert_board_to_binary,
     generate_pol_labels,
     generate_val_labels,
     get_all_move,
-    index_to_move,
     possible_moves_for_piece,
     move_to_index,
 )
@@ -17,10 +15,9 @@ import numpy as np
 from tqdm.auto import tqdm
 from copy import deepcopy
 
-device = "mps" if torch.backends.mps.is_available() else "cpu"
-# device = "cuda" if torch.cuda.is_available() else "cpu"
-# device = "cpu"
 
+# Determine if CUDA is available and use it for training, else use CPU
+device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
 class GameState:
     def __init__(self, board, player):
@@ -78,11 +75,8 @@ class MCTSNode:
         best_child = None
         best_ucb = float("-inf")  # Initialize the best UCB as negative infinity
 
-        # self.print()
-
         # Iterate through each child to find the child with the highest UCB
         for child in self.children:
-            # child.print()
             V = child.value  # The average value of the child node
             P = child.move_prob  # Probability of the move as predicted by the model
             N = self.visits if self.visits > 0 else 1  # Usa almeno 1 per evitare log(0)
@@ -161,9 +155,7 @@ class MCTSNode:
 class MonteCarloTreeSearch:
     def __init__(self, neural_network):
         # Initialize the Monte Carlo Tree Search with a neural network
-        self.neural_network = (
-            neural_network  # Neural network for evaluating game states
-        )
+        self.neural_network = neural_network  # Neural network for evaluating game states
         self.neural_network.to(device)
         self.dataset = QuixoDataset()  # Dataset for storing game states and labels
 
@@ -180,6 +172,7 @@ class MonteCarloTreeSearch:
         n_games,
         epochs,
         simulation_per_game,
+        epochs_per_game=2,
         max_moves_per_game=100,
         max_moves_for_dataset=10_000,
     ):
@@ -221,7 +214,8 @@ class MonteCarloTreeSearch:
             train_loader = get_data_loader(
                 self.dataset, batch_size
             )  # Create a DataLoader
-            train(self.neural_network, train_loader, epochs=epochs)  # Train the model
+            train(self.neural_network, train_loader, epochs=epochs_per_game)  # Train the model
+        train(self.neural_network, train_loader, epochs=epochs)  # Train the model
 
     def simulate_game(self, node, num_simulations=500, max_moves=100):
         # Simulate a game starting from a given node
@@ -236,9 +230,7 @@ class MonteCarloTreeSearch:
 
         # Continue the game until there is a winner
         while game.check_winner() < 0 and len(game_moves) < max_moves:
-            # game.print()
             # Run multiple MCTS simulations for each move
-            # for _ in tqdm(range(num_simulations), desc="Simulating"):
             for _ in range(num_simulations):
                 self.run_mcts_simulation(node)
 
@@ -247,7 +239,6 @@ class MonteCarloTreeSearch:
 
             # Determine the best move and apply it to the game
             best_move = best_node.move
-            # print(f"Best move: {best_move}, player: {game.get_current_player()}")
 
             progress_bar.update(1)
             progress_bar.set_postfix(
@@ -279,6 +270,18 @@ class MonteCarloTreeSearch:
         # Return the result of the game and the states, moves, and state-player pairs
         return game.check_winner(), game_states, game_moves, game_state_with_player
 
+    def make_move(self, node, num_simulations=500):
+        # Simulate a game starting from a given node
+        for _ in range(num_simulations):
+            self.run_mcts_simulation(node)
+        # After simulations, choose the best move based on the MCTS results
+        best_node = self.choose_best_node(node, C = 0.71)
+
+        # Determine the best move and apply it to the game
+        best_move = best_node.move
+        return best_move
+        
+    
     def choose_best_node(self, node, C=1.41):
         return node.select_child(C)
 
@@ -345,17 +348,16 @@ class MonteCarloTreeSearch:
 
 
 class AlphaZeroPlayer(Player):
-    def __init__(self, mtcs) -> None:
+    def __init__(self, mtcs, simulation = 500) -> None:
         super().__init__()
         self.mtcs = mtcs
+        self.simulation = simulation
 
     def make_move(self, game: "Game") -> tuple[tuple[int, int], Move]:
         board = game.get_board()
         player = game.get_current_player()
-        binary_board = convert_board_to_binary(board, player)
-
-        model = self.mtcs.get_model()
-        model.eval()
-        moves, _ = model(torch.tensor(binary_board).float().unsqueeze(0))
-        best_move = index_to_move(np.argmax(moves.detach().numpy()[0]))
+         
+        node = MCTSNode(GameState(board, player))
+        best_move = self.mtcs.make_move(node, num_simulations=self.simulation)
+        
         return best_move

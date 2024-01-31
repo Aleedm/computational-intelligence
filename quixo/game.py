@@ -3,8 +3,7 @@ from copy import deepcopy
 from enum import Enum
 import numpy as np
 from tqdm import tqdm
-
-# Rules on PDF and https://cdn.1j1ju.com/medias/a8/5e/26-quixo-rulebook.pdf
+# Rules on PDF
 
 
 class Move(Enum):
@@ -58,40 +57,32 @@ class Game(object):
     def check_winner(self) -> int:
         '''Check the winner. Returns the player ID of the winner if any, otherwise returns -1'''
         # for each row
-        player = self.get_current_player()
-        winner = -1
         for x in range(self._board.shape[0]):
             # if a player has completed an entire row
             if self._board[x, 0] != -1 and all(self._board[x, :] == self._board[x, 0]):
-                # return winner is this guy
-                winner = self._board[x, 0]
-        if winner > -1 and winner != self.get_current_player():
-            return winner
+                # return the relative id
+                return self._board[x, 0]
         # for each column
         for y in range(self._board.shape[1]):
             # if a player has completed an entire column
             if self._board[0, y] != -1 and all(self._board[:, y] == self._board[0, y]):
                 # return the relative id
-                winner = self._board[0, y]
-        if winner > -1 and winner != self.get_current_player():
-            return winner
+                return self._board[0, y]
         # if a player has completed the principal diagonal
         if self._board[0, 0] != -1 and all(
             [self._board[x, x]
                 for x in range(self._board.shape[0])] == self._board[0, 0]
         ):
             # return the relative id
-            winner = self._board[0, 0]
-        if winner > -1 and winner != self.get_current_player():
-            return winner
+            return self._board[0, 0]
         # if a player has completed the secondary diagonal
         if self._board[0, -1] != -1 and all(
             [self._board[x, -(x + 1)]
              for x in range(self._board.shape[0])] == self._board[0, -1]
         ):
             # return the relative id
-            winner = self._board[0, -1]
-        return winner
+            return self._board[0, -1]
+        return -1
 
     def play(self, player1: Player, player2: Player) -> int:
         '''Play the game. Returns the winning player'''
@@ -108,36 +99,12 @@ class Game(object):
             winner = self.check_winner()
         return winner
 
-    def play_with_print(self, player1: Player, player2: Player, debug=False):
-        """Play the game. Returns the winning player"""
-        players = [player1, player2]
-        winner = -1
-        n_moves = 0
-        moves = []
-
-        with tqdm(total=None, unit=" moves", desc="Playing Game", disable = not debug) as progress_bar:
-            while winner < 0:
-                self.current_player_idx += 1
-                self.current_player_idx %= len(players)
-                ok = False
-                while not ok:
-                    from_pos, slide = players[self.current_player_idx].make_move(self)
-                    ok = self.__move(from_pos, slide, self.current_player_idx)
-                moves.append((from_pos, slide))
-                n_moves += 1
-                progress_bar.update(1)  # Aggiorna la barra di progresso ad ogni mossa
-                progress_bar.set_postfix(moves=n_moves)  # Mostra il numero di mosse effettuate
-                winner = self.check_winner()
-        
-        progress_bar.set_description(f"Game Over - Moves: {n_moves}")
-        return winner, n_moves, moves
-
-
     def __move(self, from_pos: tuple[int, int], slide: Move, player_id: int) -> bool:
         '''Perform a move'''
         if player_id > 2:
             return False
         # Oh God, Numpy arrays
+        #print(f"from_pos: {from_pos}, slide: {slide}, player_id: {player_id}")
         prev_value = deepcopy(self._board[(from_pos[1], from_pos[0])])
         acceptable = self.__take((from_pos[1], from_pos[0]), player_id)
         if acceptable:
